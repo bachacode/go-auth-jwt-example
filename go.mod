@@ -1,4 +1,4 @@
-module github.com/bachacode/blog-api
+module github.com/bachacode/go-auth-jwt-example
 
 go 1.24.1
 
