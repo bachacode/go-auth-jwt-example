@@ -104,18 +104,14 @@ func LoginHandler(c *gin.Context) {
 	}
 
 	expirationTime := time.Now().Add(time.Hour * 24)
+	secret := []byte(os.Getenv("SECRET"))
 
-	// Create a new token object, specifying signing method and the claims
-	// you would like it to contain.
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		Email: user.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	})
-
-	secret := []byte(os.Getenv("SECRET"))
-	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString(secret)
 
 	if err != nil {
@@ -126,7 +122,22 @@ func LoginHandler(c *gin.Context) {
 	}
 
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, int(expirationTime.Unix()), "", "", false, true)
+	c.SetCookie(
+		"Authorization",
+		tokenString,
+		int(expirationTime.Unix()),
+		"/",
+		"",
+		false,
+		true,
+	)
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
+}
+
+func ValidateHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "You're logged in!",
+	})
 }
